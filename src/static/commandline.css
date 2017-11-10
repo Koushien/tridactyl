@@ -4,20 +4,18 @@ body {
 }
 
 input {
-  width: 100%;
-  padding: 0;
+  background: #EEEEEE;
+  border: unset;
+  color: black;
   font-family: "monospace", "Courier New";
   font-size: 10pt;
-  color: black;
-  border: unset;
-  /* we currently have a border from the completions */
-  /* border-top: solid 1px lightgray; */
   padding-left: 0.5ex;
+  width: 100%;
 }
 
 img {
-    height: 1em;
-    width: 1em;
+  height: 1em;
+  width: 1em;
 }
 
 #completions {
@@ -26,18 +24,21 @@ img {
   display: inline-block;
   font-size: 10pt;
   height: auto;
-  /* line-height: 1.5em; */
   font-family: "monospace", "Courier New";
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
   white-space: pre;
   width: 100%;
   z-index: 9998;
   border-top: 1px solid lightgray;
 }
 
+#completions .highlighted {
+  background: lightgray;
+}
+
 .url, a.url, a.url:link, a.url:visited {
   background: white;
-  color: #d0ffd0 !important;
   display: inline;
   left: 50%;
   overflow: hidden;

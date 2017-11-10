@@ -45,11 +45,11 @@ function forceURI(maybeURI: string) {
     if (hasScheme(maybeURI)) {
         return maybeURI
     }
-    
+
     let urlarr = maybeURI.split(" ")
     // TODO: make this more generic
-    if (urlarr[0] == "google"){
-        return SEARCH_URL + urlarr.slice(1,urlarr.length).join(" ")
+    if (urlarr[0] == "google") {
+        return SEARCH_URL + urlarr.slice(1, urlarr.length).join(" ")
     } else if (urlarr[0].includes('.')) {
         return "http://" + maybeURI
     } else {
@@ -145,7 +145,6 @@ export function help(...urlarr: string[]) {
     let url = urlarr.join(" ")
     // window.location.href = "docs/modules/_excmds_.html#" + url
     browser.tabs.create({url: "static/docs/modules/_excmds_.html#" + url})
-
 }
 
 /** @hidden */
@@ -292,11 +291,10 @@ export async function winclose() {
     browser.windows.remove((await browser.windows.getCurrent()).id)
 }
 
-
 // It's unclear if this will leave a session that can be restored.
 // We might have to do it ourselves.
 //#background
-export async function qall(){
+export async function qall() {
     let windows = await browser.windows.getAll()
     windows.map((window) => browser.windows.remove(window.id))
 }
@@ -389,7 +387,7 @@ export function fillcmdline_notrail(...strarr: string[]) {
 }
 
 //#background
-export async function current_url(...strarr: string[]){
+export async function current_url(...strarr: string[]) {
     fillcmdline_notrail(...strarr, (await activeTab()).url)
 }
 
@@ -417,16 +415,13 @@ export async function clipboard(excmd = "open", content = ""){
 // {{{ Buffer/completion stuff
 // TODO: Move autocompletions out of excmds.
 
-/** @hidden */
-//#background_helper
-const DEFAULT_FAVICON = browser.extension.getURL("static/defaultFavicon.svg")
-
-/** Buffer + autocompletions */
+/** Tell cmdline frame to list buffers */
 //#background
-export async function openbuffer() {
+export async function buffers() {
     fillcmdline("buffer")
-    messageActiveTab("commandline_frame", "changecompletions", [await listTabs()])
-    showcmdline()
+    // message commandline_background to message commandline_frame
+    // the current window tabs to turn to completions
+    messageActiveTab("commandline_frame", "changecompletions", ["buffers"])
 }
 
 /** Change active tab */
@@ -454,52 +449,6 @@ export async function buffer(n?: number | string) {
     }
 }
 
-/** List of tabs in window and the last active tab. */
-/** @hidden */
-//#background_helper
-async function getTabs() {
-    const tabs = await browser.tabs.query({currentWindow: true})
-    const lastActive = tabs.sort((a, b) => {
-        return a.lastAccessed < b.lastAccessed ? 1 : -1
-    })[1]
-    tabs.sort((a, b) => {
-        return a.index < b.index ? -1 : 1
-    })
-    console.log(tabs)
-    return [tabs, lastActive]
-}
-
-/** innerHTML for a single Tab's representation in autocompletion */
-/** @hidden */
-//#background_helper
-function formatTab(tab: browser.tabs.Tab, prev?: boolean) {
-    let formatted = `<div> `,
-        url = `<div class="url">`
-    if (tab.active) formatted += "%"
-    else if (prev) formatted += "#"
-    if (tab.pinned) formatted += "@"
-    formatted = formatted.padEnd(9)
-    // TODO: Dynamically set favicon dimensions. Should be able to use em.
-    formatted += tab.favIconUrl
-        ? `<img src="${tab.favIconUrl}">`
-        : `<img src="${DEFAULT_FAVICON}">`
-    formatted += ` ${tab.index + 1}: ${tab.title}`
-    url += `<a href="${tab.url}" target="_blank">${tab.url}</a></div></div>`
-    return formatted + url
-}
-
-/** innerHTML for tab autocompletion div */
-/** @hidden */
-//#background_helper
-async function listTabs() {
-    let buffers: string = "",
-        [tabs, lastActive] = await getTabs()
-    for (let tab of tabs as Array<browser.tabs.Tab>) {
-        buffers += tab === lastActive ? formatTab(tab, true) : formatTab(tab)
-    }
-    return buffers
-}
-
 // }}}
 
 // }}}
@@ -507,7 +456,7 @@ async function listTabs() {
 // {{{ SETTINGS
 
 //#background
-export async function bind(key: string, ...bindarr: string[]){
+export async function bind(key: string, ...bindarr: string[]) {
     let exstring = bindarr.join(" ")
     let nmaps = (await browser.storage.sync.get("nmaps"))["nmaps"]
     nmaps = (nmaps == undefined) ? {} : nmaps
@@ -516,13 +465,13 @@ export async function bind(key: string, ...bindarr: string[]){
 }
 
 //#background
-export async function unbind(key: string){
+export async function unbind(key: string) {
     bind(key)
 }
 
 /* Currently, only resets key to default after extension is reloaded */
 //#background
-export async function reset(key: string){
+export async function reset(key: string) {
     bind(key)
     let nmaps = (await browser.storage.sync.get("nmaps"))["nmaps"]
     nmaps = (nmaps == undefined) ? {} : nmaps
@@ -544,6 +493,5 @@ export function hint() {
 }
 
 // }}}
-
 
 // vim: tabstop=4 shiftwidth=4 expandtab

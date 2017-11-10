@@ -1,10 +1,12 @@
 /** Script used in the commandline iframe. Communicates with background. */
 
 import * as Messaging from './messaging'
+import * as Completions from './completions'
 import * as SELF from './commandline_frame'
 import './number.clamp'
 import state from './state'
 
+let completionsrc: Completions.CompletionSource
 let completions = window.document.getElementById("completions") as HTMLElement
 let clInput = window.document.getElementById("tridactyl-input") as HTMLInputElement
 
@@ -22,37 +24,29 @@ clInput.addEventListener("keydown", function (keyevent) {
         case "Enter":
             process()
             break
-
         case "Escape":
             hide_and_clear()
             break
-
-        // Todo: fish-style history search
-        // persistent history
         case "ArrowUp":
             history(-1)
             break
-
         case "ArrowDown":
             history(1)
             break
-
         // Clear input on ^C
-        // Todo: hard mode: vi style editing on cli, like set -o mode vi
+        // TODO: hard mode: vi style editing on cli, like set -o mode vi
         // should probably just defer to another library
         case "c":
             if (keyevent.ctrlKey) hide_and_clear()
             break
-
         case "f":
-            if (keyevent.ctrlKey){
+            if (keyevent.ctrlKey) {
                 // Stop ctrl+f from doing find
                 keyevent.preventDefault()
                 keyevent.stopPropagation()
                 tabcomplete()
             }
             break
-
         case "Tab":
             // Stop tab from losing focus
             keyevent.preventDefault()
@@ -63,10 +57,24 @@ clInput.addEventListener("keydown", function (keyevent) {
     }
 })
 
+clInput.addEventListener("input", () => {
+    // TODO: Handle this in parser
+    if (!clInput.value.startsWith("buffer ")) completions.innerHTML = ""
+    // else if (completionsrc === undefined) {
+    //     sendExstr("buffers")
+    // }
+    else if (completionsrc) {
+        completionsrc.filter(clInput.value.slice(7))
+        completionsrc.filter(clInput.value.split(/\s+/).slice(1))
+        completions = completionsrc.activate()
+    }
+    sendExstr("showcmdline")
+})
+
 let cmdline_history_position = 0
 let cmdline_history_current = ""
 
-function hide_and_clear(){
+function hide_and_clear() {
     /** Bug workaround: clInput cannot be cleared during an "Escape"
      * keydown event, presumably due to Firefox's internal handler for
      * Escape. So clear clInput just after :)
@@ -76,18 +84,16 @@ function hide_and_clear(){
     sendExstr("hidecmdline")
 }
 
-function tabcomplete(){
+function tabcomplete() {
     let fragment = clInput.value
     let matches = state.cmdHistory.filter((key)=>key.startsWith(fragment))
     let mostrecent = matches[matches.length - 1]
     if (mostrecent != undefined) clInput.value = mostrecent
 }
 
-function history(n){
+function history(n) {
     completions.innerHTML = ""
-    if (cmdline_history_position == 0){
-        cmdline_history_current = clInput.value 
-    }
+    if (cmdline_history_position == 0) { cmdline_history_current = clInput.value }
     let wrapped_ind = state.cmdHistory.length + n - cmdline_history_position
     wrapped_ind = wrapped_ind.clamp(0, state.cmdHistory.length)
 
@@ -101,7 +107,7 @@ function process() {
     console.log(clInput.value)
     sendExstr("hidecmdline")
     sendExstr(clInput.value)
-    if (! browser.extension.inIncognitoContext) {
+    if (!browser.extension.inIncognitoContext) {
         state.cmdHistory = state.cmdHistory.concat([clInput.value])
     }
     console.log(state.cmdHistory)
@@ -119,8 +125,21 @@ export function fillcmdline(newcommand?: string, trailspace = true){
     focus()
 }
 
-export function changecompletions(newcompletions: string) {
-    completions.innerHTML = newcompletions
+/* Rebind completionsrc and re-render. */
+export async function changecompletions(completiontype: string, items?: any): Promise<void> {
+    completionsrc = undefined
+    switch (completiontype) {
+        case "buffers":
+            if (!items) {
+                Messaging.message("commandline_background", "currentWindowTabs")
+                return
+            }
+            console.log(items)
+            completionsrc = Completions.getBuffersFromTabs(items)
+            break
+    }
+    completionsrc ? completions = completionsrc.activate() : completions.innerHTML = ""
+    sendExstr("showcmdline")
 }
 
 function applyWithTmpTextArea(fn) {

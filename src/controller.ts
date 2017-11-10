@@ -1,26 +1,25 @@
 import {MsgSafeKeyboardEvent, MsgSafeNode} from './msgsafe'
 import {isTextEditable} from './dom'
-import {parser as exmode_parser} from './parsers/exmode'
 import state from "./state"
 
+import {parser as exmode_parser} from './parsers/exmode'
 import {parser as hintmode_parser} from './hinting_background'
 import * as normalmode from "./parsers/normalmode"
 import * as insertmode from "./parsers/insertmode"
-
 
 /** Accepts keyevents, resolves them to maps, maps to exstrs, executes exstrs */
 function *ParserController () {
     const parsers = {
         normal: normalmode.parser,
         insert: insertmode.parser,
-        hint: hintmode_parser,
+        hint: hintmode_parser
     }
 
     while (true) {
         let ex_str = ""
         let keys = []
         try {
-            while (true) { 
+            while (true) {
                 let keyevent: MsgSafeKeyboardEvent = yield
                 let keypress = keyevent.key
 
@@ -94,8 +93,6 @@ export function acceptExCmd(ex_str: string) {
 
 import {activeTabId} from './lib/webext'
 browser.webNavigation.onBeforeNavigate.addListener(async function (details) {
-    if (details.tabId == await activeTabId()) {
-        state.mode = 'normal'
-    }
+    if (details.tabId == await activeTabId()) { state.mode = 'normal' }
 })
 browser.tabs.onActivated.addListener(()=>state.mode = 'normal')

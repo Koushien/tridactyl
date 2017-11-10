@@ -29,7 +29,7 @@ function pick (o, ...props) {
     return Object.assign({}, ...props.map(prop => ({[prop]: o[prop]})))
 }
 
-/** Messaging-safe, one level copy of obj 
+/** Messaging-safe, one level copy of obj
  *
  *  Doesn't work for special objects like Events: Object.keys() is too
  *  parsimonious.

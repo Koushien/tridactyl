@@ -56,8 +56,8 @@ const nmaps = new Map<string, string>([
     ["W", "current-url winopen"],
     ["t", "tabopen"],
     //["t", "fillcmdline tabopen"], // for now, use mozilla completion
-    ["]]", "clicknext"], 
-    ["[[", "clicknext prev"], 
+    ["]]", "clicknext"],
+    ["[[", "clicknext prev"],
     ["T", "current-url tab"],
     ["yy", "clipboard yank"],
     ["p", "clipboard open"],
@@ -81,7 +81,7 @@ const nmaps = new Map<string, string>([
     ["s", "fillcmdline google"],
     ["xx", "something"],
     ["i", "insertmode"],
-    ["b", "openbuffer"],
+    ["b", "buffers"],
     // Special keys must be prepended with 🄰
     // ["🄰Backspace", "something"],
 ])

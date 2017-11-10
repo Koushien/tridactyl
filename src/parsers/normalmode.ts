@@ -16,8 +16,8 @@ let nmaps = {
     "W": "current_url winopen",
     "t": "tabopen",
     //["t": "fillcmdline tabopen", // for now, use mozilla completion
-    "]]": "clicknext", 
-    "[[": "clicknext prev", 
+    "]]": "clicknext",
+    "[[": "clicknext prev",
     "T": "current_url tabopen",
     "yy": "clipboard yank",
     "p": "clipboard open",
@@ -42,7 +42,7 @@ let nmaps = {
     "S": "fillcmdline tabopen google",
     "xx": "something",
     "i": "insertmode",
-    "b": "openbuffer",
+    "b": "buffers",
     "ZZ": "qall",
     "f": "hint",
     // Special keys must be prepended with 🄰

@@ -82,7 +82,7 @@ export class MinimalKey {
     Vim has a predefined list of special key sequences, we don't: there are too
     many (and they're non-standard).[1].
 
-    In Vim, you're still allowed to use <lt> within angled brackets: 
+    In Vim, you're still allowed to use <lt> within angled brackets:
         <M-<> == <M-lt> == <M-<lt>>
     Here only the first two will work.
 

@@ -21,5 +21,11 @@ export namespace onLine {
         }
     }
 
-    Messaging.addListener("commandline_background", Messaging.attributeCaller({recvExStr}))
+    /** Helpers for completions */
+    async function currentWindowTabs(): Promise<void> {
+        Messaging.messageActiveTab(
+            'commandline_frame', 'changecompletions', ["buffers", await browser.tabs.query({currentWindow:true})])
+    }
+
+    Messaging.addListener("commandline_background", Messaging.attributeCaller({currentWindowTabs, recvExStr}))
 }

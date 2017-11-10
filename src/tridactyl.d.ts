@@ -9,7 +9,6 @@ interface Number {
     clamp(lo: number, hi: number): number
 }
 
-
 // Firefox-specific dom properties
 interface Window {
     scrollByLines(n: number): void
