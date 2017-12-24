@@ -13,6 +13,7 @@ function addListener(cb: KeydownCallback) {
 }
 
 export const onKeydown = { addListener }
+export const onKeyup = { addListener }
 
 // Receive events from content and pass to listeners
 export function recvEvent(event: MsgSafeKeyboardEvent) {

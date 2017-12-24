@@ -7,6 +7,7 @@ import './lib/browser_proxy_background'
 
 // Send keys to controller
 keydown_background.onKeydown.addListener(Controller.acceptKey)
+keydown_background.onKeyup.addListener(Controller.acceptKey)
 // To eventually be replaced by:
 // browser.keyboard.onKeydown.addListener
 

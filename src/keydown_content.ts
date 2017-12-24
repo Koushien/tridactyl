@@ -5,7 +5,14 @@ import * as msgsafe from './msgsafe'
 import {isTextEditable} from './dom'
 import {isSimpleKey} from './keyseq'
 
-function keyeventHandler(ke: KeyboardEvent) {
+function keyupHandler(ke: KeyboardEvent) {
+    if (state.mode !== 'ignore') {
+        ke.preventDefault()
+        ke.stopImmediatePropagation()
+    }
+}
+
+function keydownHandler(ke: KeyboardEvent) {
     // Ignore JS-generated events for security reasons.
     if (! ke.isTrusted) return
 
@@ -81,7 +88,8 @@ function TerribleModeSpecificSuppression(ke: KeyboardEvent) {
 // }}}
 
 // Add listeners
-window.addEventListener("keydown", keyeventHandler, true)
+window.addEventListener("keyup", keyupHandler, true)
+window.addEventListener("keydown", keydownHandler, true)
 import * as SELF from './keydown_content'
 Messaging.addListener('keydown_content', Messaging.attributeCaller(SELF))
 
