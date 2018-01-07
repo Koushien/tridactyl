@@ -33,6 +33,8 @@ class Signature:
 
         # Dictionary { name: type }
         self.params = OrderedDict()
+        # Options object {} as first parameter
+        self.params["options"] = "any" # TODO: better type value
 
         for param in params_list:
             # Type declaration

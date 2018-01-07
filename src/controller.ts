@@ -31,7 +31,7 @@ function *ParserController () {
         let ex_str = ""
         let keys = []
         try {
-            while (true) { 
+            while (true) {
                 let keyevent: MsgSafeKeyboardEvent = yield
                 let keypress = keyevent.key
 
@@ -67,12 +67,13 @@ function *ParserController () {
 
                 if (response.ex_str){
                     ex_str = response.ex_str
-                    break
+                } if (response.count){
+                    count = response.count
                 } else {
                     keys = response.keys
                 }
             }
-            acceptExCmd(ex_str)
+            acceptExCmd(ex_str, count)
         } catch (e) {
             // Rumsfeldian errors are caught here
             console.error("Tridactyl ParserController fatally wounded:", e)
@@ -89,10 +90,10 @@ export function acceptKey(keyevent: MsgSafeKeyboardEvent) {
 }
 
 /** Parse and execute ExCmds */
-export function acceptExCmd(ex_str: string) {
+export function acceptExCmd(ex_str: string, count?: number) {
     // TODO: Errors should go to CommandLine.
     try {
-        let [func, args] = exmode_parser(ex_str)
+        let [func, args] = exmode_parser(ex_str, count)
         // Stop the repeat excmd from recursing.
         if (func !== repeat)
             state.last_ex_str = ex_str
