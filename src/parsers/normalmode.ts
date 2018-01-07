@@ -32,8 +32,9 @@ function resolve_map(map) {
 function get_ex_str(keys): string {
     let [count, keystr] = keys_split_count(keys)
     let ex_str = resolve_map(keystr)
-    if (ex_str){
-        ex_str = count ? ex_str + " " + count : ex_str
+    if (ex_str && count){
+        ex_str = ex_str.indexOf("fillcmdline ") === 0 ? ex_str.slice(12) : ex_str
+        ex_str += " " + count
     }
     return ex_str
 }
