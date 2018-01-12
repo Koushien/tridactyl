@@ -104,7 +104,7 @@ export const cmd_params = new Map<string, Map<string, string>>()
 
 // map a page-relation (next or previous) to a fallback pattern to match link texts against
 const REL_PATTERN = {
-    next: /^(?:next|newer)\b|»|>>/i,
+    next: /^(?:next|newer|more)\b|»|>>/i,
     prev: /^(?:prev(?:ious)?|older)\b|«|<</i,
 }
 
