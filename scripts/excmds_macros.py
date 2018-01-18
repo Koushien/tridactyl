@@ -33,14 +33,13 @@ class Signature:
 
         # Dictionary { name: type }
         self.params = OrderedDict()
-        # Options object {} as first parameter
-        self.params["options"] = "any" # TODO: better type value
+        # self.params[options] = '{}'
 
         for param in params_list:
             # Type declaration
             if ':' in param:
                 name, typ = map(str.strip, param.split(':'))
-                if (typ not in ('number', 'boolean', 'string', 'string[]', 'ModeName')
+                if (typ not in ('number', 'boolean', 'string', 'string[]', 'ModeName', 'Object')
                         and '|' not in typ
                         and typ[0] not in ['"',"'"]
                    ):
@@ -80,7 +79,6 @@ def get_block(lines):
         block += current_line
         if brace_balance == 0:
             return block
-
 
 def dict_to_js(d):
     "Py dict to string that when eval'd will produce equivalent js Map"
