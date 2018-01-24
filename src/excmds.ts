@@ -733,8 +733,17 @@ export async function tabdetach(index?: number) {
 //#background
 export async function tabclose(...indexes: string[]) {
     if (indexes.length > 0) {
-        const idsPromise = indexes.map(index => idFromIndex(Number(index)))
-        browser.tabs.remove(await Promise.all(idsPromise))
+        // Close the most recently accessed buffer
+        if (indexes.toString() === "#") {
+            browser.tabs.remove(
+                await idFromIndex((await browser.tabs.query({currentWindow: true})).sort((a, b) => {
+                    return a.lastAccessed < b.lastAccessed ? 1 : -1
+                })[1].index + 1)
+            )
+        } else {
+            const idsPromise = indexes.map(index => idFromIndex(Number(index)))
+            browser.tabs.remove(await Promise.all(idsPromise))
+        }
     } else {
         // Close current tab
         browser.tabs.remove(await activeTabId())
