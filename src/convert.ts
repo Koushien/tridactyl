@@ -9,3 +9,7 @@ export function toNumber(s: string) {
     if (isNaN(n)) throw "Not a number! " + s
     else return n
 }
+
+export function toObject(o: object) {
+    return typeof(o) === "object" || typeof(o) === "undefined"
+}

@@ -33,13 +33,12 @@ class Signature:
 
         # Dictionary { name: type }
         self.params = OrderedDict()
-        # self.params[options] = '{}'
 
         for param in params_list:
             # Type declaration
             if ':' in param:
                 name, typ = map(str.strip, param.split(':'))
-                if (typ not in ('number', 'boolean', 'string', 'string[]', 'ModeName', 'Object')
+                if (typ not in ('number', 'boolean', 'string', 'string[]', 'ModeName')
                         and '|' not in typ
                         and typ[0] not in ['"',"'"]
                    ):
@@ -55,6 +54,8 @@ class Signature:
                         typ = "boolean"
                     elif default[0] == default[-1] and default[0] in ('"', "'"):
                         typ = "string"
+                    elif default[0] == "{" and default[-1] == "}":
+                        typ = "object | undefined"
                     else:
                         raise Exception("Edit me! Only number, string and boolean defaults supported at the mo!\n\t{raw}".format(**locals()))
             else:
@@ -79,6 +80,7 @@ def get_block(lines):
         block += current_line
         if brace_balance == 0:
             return block
+
 
 def dict_to_js(d):
     "Py dict to string that when eval'd will produce equivalent js Map"

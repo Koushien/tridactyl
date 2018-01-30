@@ -59,6 +59,7 @@ function *ParserController () {
                 switch (state.mode) {
                     case 'normal':
                         response = (parsers[state.mode] as any)(keys)
+                        if (response) count = response.count
                         break
                     default:
                         response = (parsers[state.mode] as any)([keyevent])
@@ -68,7 +69,6 @@ function *ParserController () {
 
                 if (response.ex_str){
                     ex_str = response.ex_str
-                    if (response.count) count = { count: response.count}
                     break
                 } else {
                     keys = response.keys
@@ -91,11 +91,7 @@ export function acceptKey(keyevent: MsgSafeKeyboardEvent) {
 }
 
 /** Parse and execute ExCmds */
-<<<<<<< Updated upstream
 export function acceptExCmd(ex_str: string, count?: number) {
-=======
-export function acceptExCmd(ex_str: string, options: Object = {}) {
->>>>>>> Stashed changes
     // TODO: Errors should go to CommandLine.
     try {
         let [func, args] = exmode_parser(ex_str, count)
@@ -103,7 +99,7 @@ export function acceptExCmd(ex_str: string, options: Object = {}) {
         if (func !== repeat)
             state.last_ex_str = ex_str
         try {
-            func(options, ...args)
+            func(...args)
         } catch (e) {
             // Errors from func are caught here (e.g. no next tab)
             console.error(e)

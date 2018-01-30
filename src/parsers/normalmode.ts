@@ -68,13 +68,14 @@ export function parser(keys): NormalResponse {
     while ((possible_maps(keys).length == 0) && (keys.length)) {
         keys = keys.slice(1)
     }
+    let response: NormalResponse
 
     // If keys map to an ex_str, send it
     let [ex_str, count] = get_ex_str(keys)
     if (ex_str){
-        return count ? {ex_str, count} : {ex_str}
+        response = count ? {ex_str, count} : {ex_str}
     }
     // Otherwise, return the keys that might be used in a future command
-    if (response === {} as NormalResponse) response = {keys}
+    else response = {keys}
     return response
 }

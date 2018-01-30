@@ -17,6 +17,7 @@ function convertArgs(params, argv) {
     const conversions = {
         number: convert.toNumber,
         boolean: convert.toBoolean,
+        object: convert.toObject,
         string: s=>s,
         ModeName: s=>s,
     }
@@ -45,9 +46,10 @@ export function parser(ex_str, count?){
     let [func,...args] = ex_str.trim().split(/\s+/)
     if (ExCmds.cmd_params.has(func)) {
         try {
+            // TODO: check option types, e.g. count is a number
             let typedArgs = convertArgs(ExCmds.cmd_params.get(func), args)
             console.log(ex_str, count, typedArgs)
-            return [ExCmds[func], [{count}, convertArgs(ExCmds.cmd_params.get(func), args)]]
+            return [ExCmds[func], [{count: count}].concat(typedArgs)]
         } catch (e) {
             console.error("Error executing or parsing:", ex_str, e)
             throw e
