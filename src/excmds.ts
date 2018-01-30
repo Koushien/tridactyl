@@ -181,7 +181,7 @@ function tabSetActive(id: number) {
  *                      "never", "error", "warning", "info", "debug"
  */
 //#background
-export function loggingsetlevel(logModule: string, level: string) {
+export function loggingsetlevel(options = {}, logModule: string, level: string) {
     const map = {
         "never": Logging.LEVEL.NEVER,
         "error": Logging.LEVEL.ERROR,
@@ -203,12 +203,12 @@ export function loggingsetlevel(logModule: string, level: string) {
 
 /** Blur (unfocus) the active element */
 //#content
-export function unfocus() {
+export function unfocus(options = {}) {
     (document.activeElement as HTMLInputElement).blur()
 }
 
 //#content
-export function scrollpx(a: number, b: number) {
+export function scrollpx(options = {}, a: number, b: number) {
     window.scrollBy(a, b)
 }
 
@@ -217,7 +217,7 @@ export function scrollpx(a: number, b: number) {
         defaulting to the y-axis
 */
 //#content
-export function scrollto(a: number, b: number | "x" | "y" = "y") {
+export function scrollto(options = {}, a: number, b: number | "x" | "y" = "y") {
     a = Number(a)
     if (b === "y") {
         window.scrollTo(
@@ -234,11 +234,11 @@ export function scrollto(a: number, b: number | "x" | "y" = "y") {
 }
 
 //#content
-export function scrollline(n = 1) {
+export function scrollline(options = {}, n = 1) {
     window.scrollByLines(n)
 }
 //#content
-export function scrollpage(n = 1) {
+export function scrollpage(options = {}, n = 1) {
     window.scrollBy(0, window.innerHeight * n)
 }
 
@@ -250,19 +250,19 @@ function history(n: number) {
 
 /** Navigate forward one page in history. */
 //#content
-export function forward(n = 1) {
+export function forward(options = {}, n = 1) {
     history(n)
 }
 
 /** Navigate back one page in history. */
 //#content
-export function back(n = 1) {
+export function back(options = {}, n = 1) {
     history(n * -1)
 }
 
 /** Reload the next n tabs, starting with activeTab, possibly bypassingCache */
 //#background
-export async function reload(n = 1, hard = false) {
+export async function reload(options = {}, n = 1, hard = false) {
     let tabstoreload = await getnexttabs(await activeTabId(), n)
     let reloadProperties = {bypassCache: hard}
     tabstoreload.map(n => browser.tabs.reload(n, reloadProperties))
@@ -270,7 +270,7 @@ export async function reload(n = 1, hard = false) {
 
 /** Reloads all tabs, bypassing the cache if hard is set to true */
 //#background
-export async function reloadall(hard = false){
+export async function reloadall(options = {}, hard = false){
     let tabs = await browser.tabs.query({currentWindow: true})
     let reloadprops = {bypassCache: hard}
     tabs.map(tab => browser.tabs.reload(tab.id, reloadprops))
@@ -278,8 +278,8 @@ export async function reloadall(hard = false){
 
 /** Reload the next n tabs, starting with activeTab. bypass cache for all */
 //#background
-export async function reloadhard(n = 1) {
-    reload(n, true)
+export async function reloadhard(options = {}, n = 1) {
+    reload(undefined, n, true)
 }
 
 /** Open a new page in the current tab.
@@ -294,7 +294,7 @@ export async function reloadhard(n = 1) {
         "searchengine": "google" or any of [[SEARCH_URLS]]
 */
 //#content
-export function open(...urlarr: string[]) {
+export function open(options = {}, ...urlarr: string[]) {
     let url = urlarr.join(" ")
     window.location.href = forceURI(url)
 }
@@ -307,10 +307,10 @@ export function open(...urlarr: string[]) {
 
 */
 //#background
-export function home(all: "false" | "true" = "false"){
+export function home(options = {}, all: "false" | "true" = "false"){
     let homepages = config.get("homepages")
     if (homepages.length > 0){
-        if (all === "false") open(homepages[homepages.length - 1])
+        if (all === "false") open(undefined, homepages[homepages.length - 1])
         else {
             homepages.map(t=>tabopen(t))
         }
@@ -324,13 +324,13 @@ export function home(all: "false" | "true" = "false"){
     e.g. `:help bind`
 */
 //#background
-export async function help(excmd?: string) {
+export async function help(options = {}, excmd?: string) {
     const docpage = browser.extension.getURL("static/docs/modules/_excmds_.html#")
     if (excmd === undefined) excmd = "tridactyl-help-page"
     if ((await activeTab()).url.startsWith(docpage)) {
-        open(docpage + excmd)
+        open(undefined, docpage + excmd)
     } else {
-        tabopen(docpage + excmd)
+        tabopen(undefined, docpage + excmd)
     }
 }
 
@@ -372,7 +372,7 @@ function selectLast(selector: string): HTMLElement | null {
  * @param rel   the relation of the target page to the current page: "next" or "prev"
  */
 //#content
-export function followpage(rel: 'next'|'prev' = 'next') {
+export function followpage(options = {}, rel: 'next'|'prev' = 'next') {
     const link = <HTMLLinkElement>selectLast(`link[rel~=${rel}][href]`)
 
     if (link) {
@@ -393,7 +393,7 @@ export function followpage(rel: 'next'|'prev' = 'next') {
  * @param count   the increment step, can be positive or negative
 */
 //#content
-export function urlincrement(count = 1){
+export function urlincrement(options = {}, count = 1){
     let newUrl = UrlUtil.incrementUrl(window.location.href, count)
 
     if (newUrl !== null) {
@@ -404,7 +404,7 @@ export function urlincrement(count = 1){
 /** Go to the root domain of the current URL
  */
 //#content
-export function urlroot (){
+export function urlroot (options = {}){
     let rootUrl = UrlUtil.getUrlRoot(window.location)
 
     if (rootUrl !== null) {
@@ -415,7 +415,7 @@ export function urlroot (){
 /** Go to the parent URL of the current tab's URL
  */
 //#content
-export function urlparent (count = 1){
+export function urlparent (options = {}, count = 1){
     let parentUrl = UrlUtil.getUrlParent(window.location, count)
 
     if (parentUrl !== null) {
@@ -441,7 +441,7 @@ export function urlparent (count = 1){
  *                      - graftPoint < 0 to count from right
  */
 //#content
-export function urlmodify(mode: "-t" | "-r" | "-q" | "-Q" | "-g", ...args: string[]) {
+export function urlmodify(options = {}, mode: "-t" | "-r" | "-q" | "-Q" | "-g", ...args: string[]) {
 
     let oldUrl = new URL(window.location.href)
     let newUrl = undefined
@@ -512,7 +512,7 @@ export function urlmodify(mode: "-t" | "-r" | "-q" | "-Q" | "-g", ...args: strin
     @hidden
  */
 //#content
-export function geturlsforlinks(reltype = "rel", rel: string){
+export function geturlsforlinks(options = {}, reltype = "rel", rel: string){
     let elems = document.querySelectorAll("link[" + reltype + "='" + rel + "']") as NodeListOf<HTMLLinkElement>
     if (elems)
         return Array.prototype.map.call(elems, x => x.href)
@@ -520,14 +520,14 @@ export function geturlsforlinks(reltype = "rel", rel: string){
 }
 
 //#background
-export async function zoom(level=0, rel="false"){
+export async function zoom(options = {}, level=0, rel="false"){
     level = level > 3 ? level / 100 : level
     if(rel=="true") level += (await browser.tabs.getZoom())
     browser.tabs.setZoom(level)
 }
 
 //#background
-export async function reader() {
+export async function reader(options = {}) {
     if (await l(firefoxVersionAtLeast(58))) {
     let aTab = await activeTab()
     if (aTab.isArticle) {
@@ -586,7 +586,7 @@ let LAST_USED_INPUT: HTMLElement = null
  *                  "-b": biggest input field
  */
 //#content
-export function focusinput(nth: number|string) {
+export function focusinput(options = {}, nth: number|string) {
 
     let inputToFocus: HTMLElement = null
 
@@ -692,7 +692,7 @@ async function tabIndexSetActive(index: number) {
     If increment is specified, move that many tabs forwards.
  */
 //#background
-export async function tabnext(increment = 1) {
+export async function tabnext(options = {}, increment = 1) {
     tabIndexSetActive((await activeTab()).index + increment + 1)
 }
 
@@ -704,9 +704,9 @@ export async function tabnext(increment = 1) {
     per [[tabmove]], etc)).
  */
 //#background
-export async function tabnext_gt(index?: number) {
+export async function tabnext_gt(options = {}, index?: number) {
     if (index === undefined) {
-        tabnext()
+        tabnext(undefined)
     } else {
         tabIndexSetActive(index)
     }
@@ -717,25 +717,25 @@ export async function tabnext_gt(index?: number) {
     If increment is specified, move that many tabs backwards.
  */
 //#background
-export async function tabprev(increment = 1) {
+export async function tabprev(options = {}, increment = 1) {
     tabIndexSetActive((await activeTab()).index - increment + 1)
 }
 
 /** Switch to the first tab. */
 //#background
-export async function tabfirst() {
+export async function tabfirst(options = {}) {
     tabIndexSetActive(1)
 }
 
 /** Switch to the last tab. */
 //#background
-export async function tablast() {
+export async function tablast(options = {}) {
     tabIndexSetActive(0)
 }
 
 /** Like [[open]], but in a new tab. If no address is given, it will open the newtab page, which can be set with `set newtab [url]` */
 //#background
-export async function tabopen(...addressarr: string[]) {
+export async function tabopen(options = {}, ...addressarr: string[]) {
     let uri
     let address = addressarr.join(' ')
     if (address != "") uri = forceURI(address)
@@ -773,7 +773,7 @@ async function idFromIndex(index?: number): Promise<number> {
 
 /** Close all other tabs in this window */
 //#background
-export async function tabonly() {
+export async function tabonly(options = {}) {
     const tabs = await browser.tabs.query({
         pinned: false,
         active: false,
@@ -790,7 +790,7 @@ export async function tabonly() {
         The 1-based index of the tab to target. index < 1 wraps. If omitted, this tab.
 */
 //#background
-export async function tabduplicate(index?: number) {
+export async function tabduplicate(options = {}, index?: number) {
     browser.tabs.duplicate(await idFromIndex(index))
 }
 
@@ -800,7 +800,7 @@ export async function tabduplicate(index?: number) {
         The 1-based index of the tab to target. index < 1 wraps. If omitted, this tab.
 */
 //#background
-export async function tabdetach(index?: number) {
+export async function tabdetach(options = {}, index?: number) {
     browser.windows.create({tabId: await idFromIndex(index)})
 }
 
@@ -812,7 +812,7 @@ export async function tabdetach(index?: number) {
         The 1-based indexes of the tabs to target. indexes < 1 wrap. If omitted, this tab.
 */
 //#background
-export async function tabclose(...indexes: string[]) {
+export async function tabclose(options = {}, ...indexes: string[]) {
     if (indexes.length > 0) {
         const idsPromise = indexes.map(index => idFromIndex(Number(index)))
         browser.tabs.remove(await Promise.all(idsPromise))
@@ -824,7 +824,7 @@ export async function tabclose(...indexes: string[]) {
 
 /** restore most recently closed tab in this window unless the most recently closed item was a window */
 //#background
-export async function undo(){
+export async function undo(options = {}){
     const current_win_id : number = (await browser.windows.getCurrent()).id
     const sessions = await browser.sessions.getRecentlyClosed()
 
@@ -844,14 +844,14 @@ export async function undo(){
 
 /** Synonym for [[tabclose]]. */
 //#background
-export async function quit() {
-    tabclose()
+export async function quit(options = {}) {
+    tabclose(undefined)
 }
 
 /** Convenience shortcut for [[quit]]. */
 //#background
-export async function q() {
-    tabclose()
+export async function q(options = {}) {
+    tabclose(undefined)
 }
 
 /** Move the current tab to be just in front of the index specified.
@@ -870,7 +870,7 @@ export async function q() {
         1 is the first index. 0 is the last index. -1 is the penultimate, etc.
 */
 //#background
-export async function tabmove(index = "0") {
+export async function tabmove(options = {}, index = "0") {
     const aTab = await activeTab()
     let newindex: number
     if (index.startsWith("+") || index.startsWith("-")) {
@@ -881,7 +881,7 @@ export async function tabmove(index = "0") {
 
 /** Pin the current tab */
 //#background
-export async function pin() {
+export async function pin(options = {}) {
     let aTab = await activeTab()
     browser.tabs.update(aTab.id, {pinned: !aTab.pinned})
 }
@@ -892,7 +892,7 @@ export async function pin() {
 
 /** Like [[tabopen]], but in a new window */
 //#background
-export async function winopen(...args: string[]) {
+export async function winopen(options = {}, ...args: string[]) {
     let address: string
     const createData = {}
     if (args[0] === "-private") {
@@ -904,7 +904,7 @@ export async function winopen(...args: string[]) {
 }
 
 //#background
-export async function winclose() {
+export async function winclose(options = {}) {
     browser.windows.remove((await browser.windows.getCurrent()).id)
 }
 
@@ -913,15 +913,15 @@ export async function winclose() {
 // It's unclear if this will leave a session that can be restored.
 // We might have to do it ourselves.
 //#background
-export async function qall(){
+export async function qall(options = {}){
     let windows = await browser.windows.getAll()
     windows.map((window) => browser.windows.remove(window.id))
 }
 
 /** Convenience shortcut for [[qall]]. */
 //#background
-export async function qa() {
-    qall()
+export async function qa(options = {}) {
+    qall(undefined)
 }
 
 // }}}
@@ -930,14 +930,14 @@ export async function qa() {
 
 /** Deprecated */
 //#background
-export function suppress(preventDefault?: boolean, stopPropagation?: boolean) {
-    mode("ignore")
+export function suppress(options = {}, preventDefault?: boolean, stopPropagation?: boolean) {
+    mode(undefined, "ignore")
 }
 
 //#background
-export function version(){
-    clipboard("yank","REPLACE_ME_WITH_THE_VERSION_USING_SED")
-    fillcmdline_notrail("REPLACE_ME_WITH_THE_VERSION_USING_SED")
+export function version(options = {}){
+    clipboard(undefined, "yank","REPLACE_ME_WITH_THE_VERSION_USING_SED")
+    fillcmdline_notrail(undefined, "REPLACE_ME_WITH_THE_VERSION_USING_SED")
 
 }
 
@@ -945,10 +945,10 @@ export function version(){
         - `mode ignore` to ignore all keys.
 */
 //#background
-export function mode(mode: ModeName) {
+export function mode(options = {}, mode: ModeName) {
     // TODO: event emition on mode change.
     if (mode === "hint") {
-        hint()
+        hint(undefined)
     } else {
         state.mode = mode
     }
@@ -1006,7 +1006,7 @@ import * as controller from './controller'
     Executes the command once if `n` isn't defined either.
 */
 //#background
-export function repeat(n = 1, ...exstr: string[]) {
+export function repeat(options = {}, n = 1, ...exstr: string[]) {
     let cmd = state.last_ex_str
     if (exstr.length > 0)
         cmd = exstr.join(" ")
@@ -1020,31 +1020,31 @@ export function repeat(n = 1, ...exstr: string[]) {
     Workaround: this should clearly be in the parser, but we haven't come up with a good way to deal with |s in URLs, search terms, etc. yet.
 */
 //#background
-export function composite(...cmds: string[]) {
+export function composite(options = {}, ...cmds: string[]) {
     cmds = cmds.join(" ").split("|")
     cmds.forEach(controller.acceptExCmd)
 }
 
 /** Please use fillcmdline instead */
 //#background
-export function showcmdline() {
+export function showcmdline(options = {}) {
     CommandLineBackground.show()
 }
 
 /** Set the current value of the commandline to string *with* a trailing space */
 //#background
-export function fillcmdline(...strarr: string[]) {
+export function fillcmdline(options = {}, ...strarr: string[]) {
     let str = strarr.join(" ")
-    showcmdline()
+    showcmdline(undefined)
     messageActiveTab("commandline_frame", "fillcmdline", [str])
 }
 
 /** Set the current value of the commandline to string *without* a trailing space */
 //#background
-export function fillcmdline_notrail(...strarr: string[]) {
+export function fillcmdline_notrail(options = {}, ...strarr: string[]) {
     let str = strarr.join(" ")
     let trailspace = false
-    showcmdline()
+    showcmdline(undefined)
     messageActiveTab("commandline_frame", "fillcmdline", [str, trailspace])
 }
 
@@ -1053,8 +1053,8 @@ export function fillcmdline_notrail(...strarr: string[]) {
     See also [[fillcmdline_notrail]]
 */
 //#background
-export async function current_url(...strarr: string[]){
-    fillcmdline_notrail(...strarr, (await activeTab()).url)
+export async function current_url(options = {}, ...strarr: string[]){
+    fillcmdline_notrail(undefined, ...strarr, (await activeTab()).url)
 }
 
 /** Use the system clipboard.
@@ -1071,22 +1071,22 @@ export async function current_url(...strarr: string[]){
 
 */
 //#background
-export async function clipboard(excmd: "open"|"yank"|"yankshort"|"yankcanon"|"tabopen" = "open", ...toYank: string[]) {
+export async function clipboard(options = {}, excmd: "open"|"yank"|"yankshort"|"yankcanon"|"tabopen" = "open", ...toYank: string[]) {
     let content = toYank.join(" ")
     let url = ""
     let urls = []
     switch (excmd) {
         case 'yankshort':
-            urls = await geturlsforlinks("rel", "shortlink")
+            urls = await geturlsforlinks(undefined, "rel", "shortlink")
             if (urls.length == 0) {
-                urls = await geturlsforlinks("rev", "canonical")
+                urls = await geturlsforlinks(undefined, "rev", "canonical")
             }
             if (urls.length > 0) {
                 messageActiveTab("commandline_frame", "setClipboard", [urls[0]])
                 break
             }
         case 'yankcanon':
-            urls = await geturlsforlinks("rel", "canonical")
+            urls = await geturlsforlinks(undefined, "rel", "canonical")
             if (urls.length > 0) {
                 messageActiveTab("commandline_frame", "setClipboard", [urls[0]])
                 break
@@ -1099,12 +1099,12 @@ export async function clipboard(excmd: "open"|"yank"|"yankshort"|"yankcanon"|"ta
         case 'open':
             await messageActiveTab("commandline_content", "focus")
             url = await messageActiveTab("commandline_frame", "getClipboard")
-            url && open(url)
+            url && open(undefined, url)
             break
         case 'tabopen':
             await messageActiveTab("commandline_content", "focus")
             url = await messageActiveTab("commandline_frame", "getClipboard")
-            url && tabopen(url)
+            url && tabopen(undefined, url)
             break
         default:
             // todo: maybe we should have some common error and error handler
@@ -1120,8 +1120,8 @@ export async function clipboard(excmd: "open"|"yank"|"yankshort"|"yankcanon"|"ta
     Sort of Vimperator alias
 */
 //#background
-export async function tabs() {
-    fillcmdline("buffer")
+export async function tabs(options = {}) {
+    fillcmdline(undefined, "buffer")
 }
 
 /** Equivalent to `fillcmdline buffer`
@@ -1129,8 +1129,8 @@ export async function tabs() {
     Sort of Vimperator alias
 */
 //#background
-export async function buffers() {
-    tabs()
+export async function buffers(options = {}) {
+    tabs(undefined)
 }
 
 /** Change active tab.
@@ -1141,7 +1141,7 @@ export async function buffers() {
         "#" means the tab that was last accessed in this window
  */
 //#background
-export async function buffer(index: number | '#') {
+export async function buffer(options = {}, index: number | '#') {
     if (index === "#") {
         // Switch to the most recently accessed buffer
         tabIndexSetActive(
@@ -1181,14 +1181,14 @@ export async function buffer(index: number | '#') {
         - [[reset]]
 */
 //#background
-export function bind(key: string, ...bindarr: string[]){
+export function bind(options = {}, key: string, ...bindarr: string[]){
     let exstring = bindarr.join(" ")
     config.set("nmaps",exstring,key)
 }
 
 /** Set a search engine keyword for use with *open or `set searchengine` */
 //#background
-export function searchsetkeyword(keyword: string, url: string){
+export function searchsetkeyword(options = {}, keyword: string, url: string){
     config.set("searchurls",forceURI(url),keyword)
 }
 
@@ -1200,8 +1200,8 @@ export function searchsetkeyword(keyword: string, url: string){
         - [[reset]]
 */
 //#background
-export async function unbind(key: string){
-    bind(key, "")
+export async function unbind(options = {}, key: string){
+    bind(undefined, key, "")
 }
 
 /** Restores a sequence of keys to their default value.
@@ -1212,7 +1212,7 @@ export async function unbind(key: string){
         - [[unbind]]
 */
 //#background
-export async function reset(key: string){
+export async function reset(options = {}, key: string){
     config.unset("nmaps",key)
 
     // Code for dealing with legacy binds
@@ -1245,7 +1245,7 @@ export async function reset(key: string){
 
 */
 //#background
-export async function sanitize(...args: string[]) {
+export async function sanitize(options = {}, ...args: string[]) {
     let flagpos = args.indexOf("-t")
     let since = {}
     // If the -t flag has been given and there is an arg after it
@@ -1324,7 +1324,7 @@ export async function sanitize(...args: string[]) {
 
 */
 //#background
-export async function quickmark(key: string, ...addressarr: string[]) {
+export async function quickmark(options = {}, key: string, ...addressarr: string[]) {
     // ensure we're binding to a single key
     if (key.length !== 1) {
         return
@@ -1333,20 +1333,20 @@ export async function quickmark(key: string, ...addressarr: string[]) {
     if (addressarr.length <= 1) {
         let address = addressarr.length == 0 ? (await activeTab()).url : addressarr[0]
         // Have to await these or they race!
-        await bind("gn" + key, "tabopen", address)
-        await bind("go" + key, "open", address)
-        await bind("gw" + key, "winopen", address)
+        await bind(undefined, "gn" + key, "tabopen", address)
+        await bind(undefined, "go" + key, "open", address)
+        await bind(undefined, "gw" + key, "winopen", address)
     } else {
         let compstring = addressarr.join(" | tabopen ")
         let compstringwin = addressarr.join(" | winopen ")
-        await bind("gn" + key, "composite tabopen", compstring)
-        await bind("go" + key, "composite open", compstring)
-        await bind("gw" + key, "composite winopen", compstringwin)
+        await bind(undefined, "gn" + key, "composite tabopen", compstring)
+        await bind(undefined, "go" + key, "composite open", compstring)
+        await bind(undefined, "gw" + key, "composite winopen", compstringwin)
     }
 }
 
 //#background
-export function get(target: string, property?: string){
+export function get(options = {}, target: string, property?: string){
     console.log(config.get(target,property))
 }
 
@@ -1359,7 +1359,7 @@ export function get(target: string, property?: string){
 
 */
 //#background
-export function set(setting: string, ...value: string[]){
+export function set(options = {}, setting: string, ...value: string[]){
     // We only support setting strings or arrays: not objects
     let current = config.get(setting)
     if ((Array.isArray(current) || typeof current == "string")) {
@@ -1367,12 +1367,12 @@ export function set(setting: string, ...value: string[]){
             if (!Array.isArray(current)){
                 config.set(setting,value[0])
             } else config.set(setting,value)
-        } else fillcmdline_notrail("set " + setting + " " + config.get(setting))
+        } else fillcmdline_notrail(undefined, "set " + setting + " " + config.get(setting))
     }
 }
 
 //#background
-export function unset(target: string, property?: string){
+export function unset(options = {}, target: string, property?: string){
     config.unset(target,property)
 }
 
@@ -1424,7 +1424,7 @@ import * as hinting from './hinting_background'
         "hintchars": "hjklasdfgyuiopqwertnmzxcvb"
 */
 //#background
-export function hint(option?: string, selectors="") {
+export function hint(options = {}, option?: string, selectors="") {
     if (option === '-b') hinting.hintPageOpenInBackground()
     else if (option === "-y") hinting.hintPageYank()
     else if (option === "-p") hinting.hintPageTextYank()
@@ -1457,7 +1457,7 @@ import * as gobbleMode from './parsers/gobblemode'
 
 */
 //#background
-export async function gobble(nChars: number, endCmd: string) {
+export async function gobble(options = {}, nChars: number, endCmd: string) {
     gobbleMode.init(nChars, endCmd)
 }
 
@@ -1491,7 +1491,7 @@ function tssReadFromCss(selector: string): void {
  *                      -c read the content of elements matching the selector
  */
 //#content
-export async function ttsread(mode: "-t" | "-c", ...args: string[]) {
+export async function ttsread(options = {}, mode: "-t" | "-c", ...args: string[]) {
 
     if (mode === "-t") {
         // really should quote args, but for now, join
@@ -1514,11 +1514,11 @@ export async function ttsread(mode: "-t" | "-c", ...args: string[]) {
  * set in the config using `ttsvoice`
  */
 //#background
-export async function ttsvoices() {
+export async function ttsvoices(options = {}) {
     let voices = TTS.listVoices()
 
     // need a better way to show this to the user
-    fillcmdline_notrail(voices.sort().join(", "))
+    fillcmdline_notrail(undefined, voices.sort().join(", "))
 }
 
 /**
@@ -1528,7 +1528,7 @@ export async function ttsvoices() {
  *   - stop:    cancel current and pending utterances
  */
 //#content
-export async function ttscontrol(action: string) {
+export async function ttscontrol(options = {}, action: string) {
 
     let ttsAction: TTS.Action = null
 
@@ -1558,7 +1558,7 @@ export async function ttscontrol(action: string) {
 * If a bookmark already exists for the URL, it is removed.
 */
 //#background
-export async function bmark(url?: string, ...titlearr: string[] ){
+export async function bmark(options = {}, url?: string, ...titlearr: string[] ){
     url = url === undefined ? (await activeTab()).url : url
     let title = titlearr.join(" ")
     let dupbmarks = await browser.bookmarks.search({url})
